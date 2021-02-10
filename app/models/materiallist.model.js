@@ -16,6 +16,19 @@ MaterialistModel.save = async (data, condition = []) => {
   return result;
 };
 
+MaterialistModel.savearr = async (data, condition = []) => {
+  let result = null;
+
+  CoreDB.setTable(nameTable);
+  if (condition.length > 0) {
+    result = await CoreDB.update(data, condition);
+  } else {
+    result = await CoreDB.createarr(data);
+  }
+
+  return result;
+};
+
 MaterialistModel.delete = async (condition) => {
   CoreDB.setTable(nameTable);
 

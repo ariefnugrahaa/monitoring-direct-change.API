@@ -22,6 +22,11 @@ WhislistModel.delete = async (condition) => {
   return await CoreDB.delete(condition);
 };
 
+WhislistModel.deleteArray = async (condition) => {
+  CoreDB.setTable(nameTable);
+  return await CoreDB.deleteArray(condition);
+};
+
 WhislistModel.getBy = async (
   fields = "*",
   condition,

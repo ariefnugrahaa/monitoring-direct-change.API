@@ -4,6 +4,7 @@ const DB = mysql.createPool({
   connectionLimit: CONFIG.CONNECTION_LIMIT,
   host: CONFIG.DB_HOST,
   user: CONFIG.DB_USER,
+  port: '8889',
   password: CONFIG.DB_PASS,
   database: CONFIG.DB_NAME,
 });
@@ -74,6 +75,118 @@ CoreDB.query = (query, values = []) => {
  * @param data         : array -> [{ key: fieldName, value: value }, ...]
  */
 CoreDB.create = (data) => {
+  return new Promise((resolve, reject) => {
+    let fields = [];
+    let vals = [];
+    let values = [];
+    let field = [];
+    let val = [];
+    let log = `DB :: ${table} :: create`;
+
+    // generate insert query
+    if (data.length > 0) {
+      data.map(function (val, key) {
+        fields.push(`${val.key}`);
+        vals.push("?");
+        values.push(val.value);
+      });
+      console.log(fields)
+      field = fields.join(", ");
+      val = vals.join(", ");
+    } else {
+      const error = { code: 400, message: "Invalid data" };
+      reject(error);
+    }
+
+    let query = `INSERT INTO ${table} (${field}) VALUES (${val})`;
+    console.log(query)
+    try {
+      DB.getConnection((err, connection) => {
+        if (err) {
+          console.log(`│  ├── Database connection :: error`);
+          reject(err);
+        } else {
+          connection.query(query, values, (error, result, fields) => {
+            connection.release();
+
+            if (error) {
+              console.log(`│  ├── ${log} -> ${error.sqlMessage}`);
+              console.log(`│  ├── ${log} -> ${query}`);
+              reject(error);
+            } else {
+              console.log(`│  ├── ${log} -> success`);
+              let res = {
+                success: true,
+                rows: result.affectedRows,
+                returnid: result.insertId,
+              };
+              resolve(res);
+            }
+          });
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+CoreDB.createarr = (data) => {
+  return new Promise((resolve, reject) => {
+    let fields = [];
+    let vals = [];
+    let values = [];
+    let field = [];
+    let val = [];
+    let log = `DB :: ${table} :: create`;
+
+    // generate insert query
+    if (data.length > 0) {
+      data.map(function (val, key) {
+        fields.push(`${val.key}`);
+        vals.push("?");
+        values.push(val.value);
+      });
+      field = fields.join(", ");
+      val = vals.join(", ");
+    } else {
+      const error = { code: 400, message: "Invalid data" };
+      reject(error);
+    }
+
+    let query = `INSERT INTO ${table} (${field}) VALUES (${val})`;
+    try {
+      DB.getConnection((err, connection) => {
+        if (err) {
+          console.log(`│  ├── Database connection :: error`);
+          reject(err);
+        } else {
+          connection.query(query, values, (error, result, fields) => {
+            connection.release();
+
+            if (error) {
+              console.log(`│  ├── ${log} -> ${error.sqlMessage}`);
+              console.log(`│  ├── ${log} -> ${query}`);
+              reject(error);
+            } else {
+              console.log(`│  ├── ${log} -> success`);
+              let res = {
+                success: true,
+                rows: result.affectedRows,
+                returnid: result.insertId,
+              };
+              resolve(res);
+            }
+          });
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+CoreDB.createMaterial = (data) => {
   return new Promise((resolve, reject) => {
     let fields = [];
     let vals = [];
@@ -323,6 +436,8 @@ CoreDB.delete = (condition) => {
   });
 };
 
+
+
 CoreDB.deleteArray = (condition) => {
   return new Promise((resolve, reject) => {
     let fields = [];
@@ -342,8 +457,6 @@ CoreDB.deleteArray = (condition) => {
     }
 
     let query = `DELETE FROM ${table} WHERE 1 ${field}`;
-    console.log("query");
-    console.log(query);
     try {
       DB.getConnection((err, connection) => {
         if (err) {

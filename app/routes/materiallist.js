@@ -13,6 +13,7 @@ router.get(
 );
 router.get("/getallmateriallist", MaterialListController.getallmateriallist);
 router.post("/addmateriallist", MaterialListController.addmateriallist);
+router.post("/addmateriallistarr", MaterialListController.addmateriallistarr);
 router.post("/editmateriallist", MaterialListController.editmateriallist);
 router.post("/deletemateriallist", MaterialListController.deletemateriallist);
 router.post(

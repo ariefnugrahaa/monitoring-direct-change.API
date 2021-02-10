@@ -9,34 +9,21 @@ WhislistController.addWhislist = async (req, res, next) => {
   console.log("Add whislist");
   let data = {};
   try {
-    // validate data input
     let { body } = req;
-    // let valid = await AuthController.validate(body);
-    let valid = "2";
-    if (valid === "3") {
+    let whislistData = [
+      { key: "id_rig", value: body["id_rig"] },
+      { key: "id_material", value: body["id_material"] },
+      { key: "created_by", value: body["created_by"] },
+    ];
+    let insertSuccess = await WhislistModel.save(whislistData);
+    if (!insertSuccess) {
       res
         .status(200)
-        .send(parseResponse(false, null, "57", "Data is not Valid"));
+        .send(parseResponse(false, null, "57", "Failed to save in Database"));
     } else {
-      // set data
-      let whislistData = [
-        { key: "id_rig", value: body["id_rig"] },
-        { key: "id_material", value: body["id_material"] },
-        { key: "keterangan", value: body["keterangan"] },
-        { key: "created_by", value: body["created_by"] },
-      ];
-      // save data
-      let insertSuccess = await WhislistModel.save(whislistData);
-      // check if suucess save
-      if (!insertSuccess) {
-        res
-          .status(200)
-          .send(parseResponse(false, null, "57", "Failed to save in Database"));
-      } else {
-        res
-          .status(200)
-          .send(parseResponse(true, data, "00", "Success create whislist"));
-      }
+      res
+        .status(200)
+        .send(parseResponse(true, data, "00", "Success create whislist"));
     }
   } catch (error) {}
 };
@@ -47,6 +34,7 @@ WhislistController.getwhislistbyidrig = async (req, res, next) => {
     let { id_rig } = req.query;
     let data = await WhislistModel.QueryCustom(
       "SELECT " +
+        " tb_header_whislist.ID," +
         " tb_header_whislist.id_rig," +
         " tb_header_whislist.id_material," +
         " tb_header_whislist.created_by," +
@@ -71,6 +59,75 @@ WhislistController.getwhislistbyidrig = async (req, res, next) => {
           "Get Whislist" + "whislist" + " Success"
         )
       );
+  } catch (error) {}
+};
+
+WhislistController.addselectedwhislist = async (req, res, next) => {
+  let data = {};
+  try {
+    let { body } = req;
+    let tempObject = []
+    for(let i = 0; i < body.length; i++) {
+      tempObject.push(Object.values(body[i]))
+    }
+    let whislistData = tempObject
+    let query = 'INSERT INTO tb_header_whislist (id_rig, id_material, created_by) VALUES ?'
+    let insertSuccess = await WhislistModel.QueryCustom(query, [whislistData])
+    if (!insertSuccess) {
+      res
+        .status(200)
+        .send(parseResponse(false, null, "57", "Failed to save in Database"));
+    } else {
+      res
+        .status(200)
+        .send(parseResponse(true, data, "00", "Success add whislist"));
+    }
+  } catch (error) {}
+};
+
+
+WhislistController.deletewhislist = async (req, res, next) => {
+  console.log("Delete whislist");
+  let data = {};
+  try {
+    let { body } = req;
+    let options = [{ key: "ID", value: body["ID"].split(",") }];
+    let deleteSuccess = await WhislistModel.delete(options);
+    if (!deleteSuccess) {
+      res
+        .status(200)
+        .send(parseResponse(false, null, "57", "Failed to save in Database"));
+    } else {
+      res
+        .status(200)
+        .send(parseResponse(true, data, "00", "Success delete whislist"));
+    }
+  } catch (error) {}
+};
+
+WhislistController.deleteselectedwhislist = async (req, res, next) => {
+  console.log("Delete whislist");
+  let data = {};
+  try {
+    let { body } = req;
+    let valid = "2";
+    if (valid === "3") {
+      res
+        .status(200)
+        .send(parseResponse(false, null, "57", "Data is not Valid"));
+    } else {
+      let options = [{ key: "ID", value: body["ID"] }];
+      let deleteSuccess = await WhislistModel.deleteArray(options)
+      if (!deleteSuccess) {
+        res
+          .status(200)
+          .send(parseResponse(false, null, "57", "Failed to save in Database"));
+      } else {
+        res
+          .status(200)
+          .send(parseResponse(true, data, "00", "Success delete whislist"));
+      }
+    }
   } catch (error) {}
 };
 
