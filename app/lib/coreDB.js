@@ -4,7 +4,7 @@ const DB = mysql.createPool({
   connectionLimit: CONFIG.CONNECTION_LIMIT,
   host: CONFIG.DB_HOST,
   user: CONFIG.DB_USER,
-  port: '8889',
+  // port: '8889',
   password: CONFIG.DB_PASS,
   database: CONFIG.DB_NAME,
 });
@@ -90,7 +90,7 @@ CoreDB.create = (data) => {
         vals.push("?");
         values.push(val.value);
       });
-      console.log(fields)
+      console.log(fields);
       field = fields.join(", ");
       val = vals.join(", ");
     } else {
@@ -99,7 +99,7 @@ CoreDB.create = (data) => {
     }
 
     let query = `INSERT INTO ${table} (${field}) VALUES (${val})`;
-    console.log(query)
+    console.log(query);
     try {
       DB.getConnection((err, connection) => {
         if (err) {
@@ -435,8 +435,6 @@ CoreDB.delete = (condition) => {
     }
   });
 };
-
-
 
 CoreDB.deleteArray = (condition) => {
   return new Promise((resolve, reject) => {
