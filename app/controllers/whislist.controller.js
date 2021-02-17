@@ -66,13 +66,14 @@ WhislistController.addselectedwhislist = async (req, res, next) => {
   let data = {};
   try {
     let { body } = req;
-    let tempObject = []
-    for(let i = 0; i < body.length; i++) {
-      tempObject.push(Object.values(body[i]))
+    let tempObject = [];
+    for (let i = 0; i < body.length; i++) {
+      tempObject.push(Object.values(body[i]));
     }
-    let whislistData = tempObject
-    let query = 'INSERT INTO tb_header_whislist (id_rig, id_material, created_by) VALUES ?'
-    let insertSuccess = await WhislistModel.QueryCustom(query, [whislistData])
+    let whislistData = tempObject;
+    let query =
+      "INSERT INTO tb_header_whislist (id_rig, id_material, created_by) VALUES ?";
+    let insertSuccess = await WhislistModel.QueryCustom(query, [whislistData]);
     if (!insertSuccess) {
       res
         .status(200)
@@ -85,13 +86,13 @@ WhislistController.addselectedwhislist = async (req, res, next) => {
   } catch (error) {}
 };
 
-
 WhislistController.deletewhislist = async (req, res, next) => {
   console.log("Delete whislist");
   let data = {};
   try {
     let { body } = req;
-    let options = [{ key: "ID", value: body["ID"].split(",") }];
+    console.log(body);
+    let options = [{ key: "ID", value: body["ID"] }];
     let deleteSuccess = await WhislistModel.delete(options);
     if (!deleteSuccess) {
       res
@@ -117,7 +118,7 @@ WhislistController.deleteselectedwhislist = async (req, res, next) => {
         .send(parseResponse(false, null, "57", "Data is not Valid"));
     } else {
       let options = [{ key: "ID", value: body["ID"] }];
-      let deleteSuccess = await WhislistModel.deleteArray(options)
+      let deleteSuccess = await WhislistModel.deleteArray(options);
       if (!deleteSuccess) {
         res
           .status(200)

@@ -125,22 +125,22 @@ MaterialListController.addmateriallistarr = async (req, res, next) => {
   let data = {};
   try {
     let { body } = req;
-    let tempObject = []
-    for(let i = 0; i < body.length; i++) {
-      tempObject.push(Object.values(body[i]))
+    let tempObject = [];
+    for (let i = 0; i < body.length; i++) {
+      tempObject.push(Object.values(body[i]));
     }
-    let isUsed = false
+    let isUsed = false;
     if (isUsed) {
       res
         .status(200)
         .send(parseResponse(false, null, "57", "Data tidak bisa dibuat"));
     } else {
-      // set data
-      let materialData = tempObject
-      let query = 'INSERT INTO tb_master_material (id_rig, sloc_description, material_description, category, part_number, manufacture, qty, uom, value, sloc) VALUES ?'
-      // save data
-      let insertSuccess = await MaterialListModel.QueryCustom(query, [materialData])
-      // check if suucess save
+      let materialData = tempObject;
+      let query =
+        "INSERT INTO tb_master_material (id_rig, sloc_description, material_description, category, part_number, manufacture, qty, uom, value, sloc) VALUES ?";
+      let insertSuccess = await MaterialListModel.QueryCustom(query, [
+        materialData,
+      ]);
       if (!insertSuccess) {
         res
           .status(200)
@@ -199,7 +199,7 @@ MaterialListController.editmateriallist = async (req, res, next) => {
         { key: "uom", value: body["uom"] },
         { key: "value", value: body["value"] },
       ];
-  
+
       let editSuccess = await MaterialListModel.save(materialData, options);
       if (!editSuccess) {
         res
@@ -219,6 +219,7 @@ MaterialListController.deletemateriallist = async (req, res, next) => {
   let data = {};
   try {
     let { body } = req;
+    console.log(body);
     let valid = "2";
     if (valid === "3") {
       res
@@ -246,18 +247,18 @@ MaterialListController.deleteselectedmateriallist = async (req, res, next) => {
   try {
     let { body } = req;
 
-      let options = [{ key: "ID", value: body["ID"] }];
-      let deleteSuccess = await MaterialListModel.deleteArray(options);
-      
-      if (!deleteSuccess) {
-        res
-          .status(200)
-          .send(parseResponse(false, null, "57", "Failed to save in Database"));
-      } else {
-        res
-          .status(200)
-          .send(parseResponse(true, data, "00", "Success delete materiallist"));
-      }
+    let options = [{ key: "ID", value: body["ID"] }];
+    let deleteSuccess = await MaterialListModel.deleteArray(options);
+
+    if (!deleteSuccess) {
+      res
+        .status(200)
+        .send(parseResponse(false, null, "57", "Failed to save in Database"));
+    } else {
+      res
+        .status(200)
+        .send(parseResponse(true, data, "00", "Success delete materiallist"));
+    }
   } catch (error) {}
 };
 module.exports = MaterialListController;
