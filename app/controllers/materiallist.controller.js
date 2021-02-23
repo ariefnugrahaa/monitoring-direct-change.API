@@ -12,7 +12,7 @@ MaterialListController.getmateriallistbyrigid = async (req, res, next) => {
   try {
     let { idrig } = req.query;
     let data = await MaterialListModel.QueryCustom(
-      "SELECT ID, rigName, id_rig, sloc, sloc_description, material_description, category, part_number, manufacture, qty, uom, value, updated_by " +
+      "SELECT ID, rigName, id_rig, sloc, sloc_description, material_description, category, part_number, manufacture, qty, nett_price, uom, qty * nett_price AS jumlah, updated_by " +
         " FROM tb_master_material" +
         " INNER JOIN tb_master_rig ON tb_master_material.id_rig = tb_master_rig.rigId" +
         " WHERE rigId = '" +
@@ -57,9 +57,12 @@ MaterialListController.getmateriallistdetail = async (req, res, next) => {
 MaterialListController.getallmateriallist = async (req, res, next) => {
   about = "Get All  Material List";
   try {
-    console.log(req);
     data = await MaterialListModel.QueryCustom(
-      "SELECT * FROM tb_master_material WHERE qty NOT IN (0)"
+      "SELECT ID, id_rig, tb_master_rig.rigName AS rig_name, sloc, sloc_description, material_description, category, " +
+        " part_number, manufacture, qty, nett_price, uom, qty * nett_price AS jumlah" +
+        " FROM tb_master_material" +
+        " INNER JOIN tb_master_rig ON tb_master_material.id_rig = tb_master_rig.rigId" +
+        " WHERE qty NOT IN (0)"
     );
     res
       .status(200)
@@ -103,7 +106,7 @@ MaterialListController.addmateriallist = async (req, res, next) => {
         { key: "manufacture", value: body["manufacture"] },
         { key: "qty", value: body["qty"] },
         { key: "uom", value: body["uom"] },
-        { key: "value", value: body["value"] },
+        { key: "nett_price", value: body["nett_price"] },
       ];
       // save data
       let insertSuccess = await MaterialListModel.save(materialData);
@@ -125,6 +128,7 @@ MaterialListController.addmateriallistarr = async (req, res, next) => {
   let data = {};
   try {
     let { body } = req;
+    console.log(body);
     let tempObject = [];
     for (let i = 0; i < body.length; i++) {
       tempObject.push(Object.values(body[i]));
@@ -137,7 +141,7 @@ MaterialListController.addmateriallistarr = async (req, res, next) => {
     } else {
       let materialData = tempObject;
       let query =
-        "INSERT INTO tb_master_material (id_rig, sloc_description, material_description, category, part_number, manufacture, qty, uom, value, sloc) VALUES ?";
+        "INSERT INTO tb_master_material (sloc, sloc_description, material_description, category, part_number, manufacture, qty, uom, value, id_rig) VALUES ?";
       let insertSuccess = await MaterialListModel.QueryCustom(query, [
         materialData,
       ]);
@@ -197,7 +201,7 @@ MaterialListController.editmateriallist = async (req, res, next) => {
         { key: "manufacture", value: body["manufacture"] },
         { key: "qty", value: body["qty"] },
         { key: "uom", value: body["uom"] },
-        { key: "value", value: body["value"] },
+        { key: "nett_price", value: body["nett_price"] },
       ];
 
       let editSuccess = await MaterialListModel.save(materialData, options);

@@ -50,16 +50,22 @@ AuthController.login = async (req, res, next) => {
         validator: validatorsRandom,
       };
       let tokenSystem = await generateToken(userObj);
+      let rigName = await UsersModel.QueryCustom(
+        "SELECT rigName FROM tb_master_rig WHERE rigId = '" +
+          users_tbl.idRig +
+          "'"
+      );
 
       result = {
         token: tokenSystem,
         username: users_tbl.username,
         name: users_tbl.name,
         idRig: users_tbl.idRig,
+        rig_name: rigName.rows[0].rigName,
       };
       res
         .status(statusCode)
-        .send(parseResponse(acknowledge, result, responseCode, "eee"));
+        .send(parseResponse(acknowledge, result, responseCode, " "));
 
       return;
     } else if (users_tbl.source === "ldap") {
