@@ -45,6 +45,7 @@ AuthController.login = async (req, res, next) => {
 
       let userObj = {
         username: users_tbl.username,
+        role: users_tbl.role,
         name: users_tbl.name,
         source: users_tbl.source,
         validator: validatorsRandom,
