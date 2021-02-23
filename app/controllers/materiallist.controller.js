@@ -141,7 +141,7 @@ MaterialListController.addmateriallistarr = async (req, res, next) => {
     } else {
       let materialData = tempObject;
       let query =
-        "INSERT INTO tb_master_material (sloc, sloc_description, material_description, category, part_number, manufacture, qty, uom, value, id_rig) VALUES ?";
+        "INSERT INTO tb_master_material (sloc, sloc_description, material_description, category, part_number, manufacture, qty, uom, nett_price, id_rig) VALUES ?";
       let insertSuccess = await MaterialListModel.QueryCustom(query, [
         materialData,
       ]);
