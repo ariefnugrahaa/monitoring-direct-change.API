@@ -6,6 +6,7 @@ const UsersModel = require("../models/users.model");
 const parseResponse = require("../helpers/parse-response");
 const { generateToken, encryptPassword } = require("../lib/jwt");
 const partnersApi = require("../helpers/partner-api");
+const { body } = require("express-validator");
 const log = "User controller";
 
 AuthController.login = async (req, res, next) => {
@@ -22,23 +23,21 @@ AuthController.login = async (req, res, next) => {
     let manualPwdEncrypt = await encryptPassword(password);
     let optionsSystem = [
       { key: "username", value: username },
-      // { key: "username", value: manualPwdEncrypt },
+      // { key: "password", value: manualPwdEncrypt },
     ];
     let users_tbl = await UsersModel.getBy(
-      "username, password, source, name, idRig",
+      "password, source, name, idRig",
       optionsSystem
     );
-    console.log(users_tbl);
-    console.log(manualPwdEncrypt);
+
+    if (users_tbl.password != manualPwdEncrypt) {
+      res
+        .status(statusCode)
+        .send(parseResponse(acknowledge, result, "05", "Password salah."));
+      return;
+    }
 
     if (users_tbl.source === "system") {
-      if (users_tbl.password != manualPwdEncrypt) {
-        res
-          .status(statusCode)
-          .send(parseResponse(acknowledge, result, "05", "Password salah."));
-        return;
-      }
-
       let validatorsRandom = randomstring.generate();
       userData = [{ key: "validator", value: validatorsRandom }];
       await UsersModel.save(userData, optionsSystem);
@@ -70,13 +69,8 @@ AuthController.login = async (req, res, next) => {
 
       return;
     } else if (users_tbl.source === "ldap") {
-      // if ZTIPE eq L (LDAP) then check userexistLDAP ? generate token and check table user insert if not exist
-      // else not user LDAP then cek database table user and check password encrypt
       let token = "";
-
-      //check user via LDAP
       username = username.split("@")[0];
-      //console.log(username)
       const options = {
         method: "POST",
         url: partnersApi.ldapService.login,
@@ -89,15 +83,10 @@ AuthController.login = async (req, res, next) => {
       };
 
       const ldap = await rp(options);
-
-      console.log("ldap");
-      console.log(ldap);
-
       if (ldap != null) {
         let validatorsRandom = randomstring.generate();
         let userData = null;
         let condition = [{ key: "UserID", value: username }];
-
         if (ldap.Status == "00") {
           let where = [
             { key: "UserID", value: username },
@@ -130,7 +119,6 @@ AuthController.login = async (req, res, next) => {
             role: users_tbl.Role,
           };
         } else {
-          // login not authorize
           statusCode = 200;
           responseCode = "05";
           message =
@@ -139,7 +127,6 @@ AuthController.login = async (req, res, next) => {
           result = null;
         }
       } else {
-        // login not authorize
         statusCode = 200;
         responseCode = "99";
         message =
@@ -148,15 +135,12 @@ AuthController.login = async (req, res, next) => {
         result = null;
       }
     } else {
-      // return LDAP Service null
       statusCode = 200;
       responseCode = "05";
       message = "User not Authorize";
       acknowledge = false;
       result = null;
     }
-
-    // return response
     res
       .status(statusCode)
       .send(parseResponse(acknowledge, result, responseCode, message));
